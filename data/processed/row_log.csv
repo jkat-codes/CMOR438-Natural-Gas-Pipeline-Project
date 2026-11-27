@@ -1,0 +1,2 @@
+step,rows_before,rows_after,removed,reason
+8 exact duplicates,1592,1592,0,identical in every column

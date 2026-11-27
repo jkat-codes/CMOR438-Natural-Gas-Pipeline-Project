@@ -1,0 +1,9 @@
+{
+  "processed_file": "gas_distribution_incidents.parquet",
+  "raw_file": "incident_gas_distribution_jan2010_present.txt",
+  "n_rows": 1592,
+  "n_columns": 319,
+  "incident_date_min": "2010-01-03",
+  "incident_date_max": "2026-07-28",
+  "pandas_version": "3.1.0"
+}
