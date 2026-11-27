@@ -15,6 +15,6 @@ artifacts/*
 !artifacts/README.md
 data/local/*
 !data/local/.gitkeep
-configs/student.toml
+# configs/student.toml
 coverage.xml
 htmlcov/
