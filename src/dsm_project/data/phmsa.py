@@ -15,7 +15,17 @@ from __future__ import annotations
 
 import hashlib
 from pathlib import Path
+import pandas as pd 
+import numpy as np
 
+
+from dsm_project.config import ProjectConfig
+from dsm_project.contracts import (
+    DatasetProvenance,
+    ProjectDataset,
+    TaskDefinition,
+    TaskKind,
+)
 
 IDENTIFIER = "REPORT_NUMBER"
 TIME_COLUMN = "LOCAL_DATETIME"
@@ -93,3 +103,32 @@ def sha256_file(path: Path, chunk_size: int = 1 << 20) -> str:
         for chunk in iter(lambda: stream.read(chunk_size), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+def read_incidents(path: Path, expected_sha256: str | None = None) -> pd.DataFrame: 
+    if not path.is_file(): 
+        raise FileNotFoundError(
+            f"Process PHMSA data not found: {path}"
+            "Run notebooks/00-acquisition.py to create it."
+        )
+
+    if expected_sha256 is not None: 
+        actual = sha256_file(path)
+        if actual != expected_sha256.strip().lower(): 
+            raise ValueError(
+                f"Checksum mismatch for {path.name}: expected {expected_sha256}, got {actual}"
+            )
+
+    frame = pd.read_parquet(path)
+    missing = [column for column in REQUIRED_COLUMNS if column not in frame.columns]
+
+    if missing: 
+        raise ValueError(f"Processed data is missing required columns: {missing}")
+
+    return frame
+
+def filter_scope(frame: pd.DataFrame) -> pd.DataFrame: 
+    commodity = frame["COMMODITY_RELEASED TYPE"]
+
+    in_scope = frame["is_final"].astype(bool) & commodity.isin(KEPT_COMMODITIES) | commodity.isna()
+
+    return frame.loc[in_scope].reset_index(drop=True)
