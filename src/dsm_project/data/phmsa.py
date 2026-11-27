@@ -127,8 +127,71 @@ def read_incidents(path: Path, expected_sha256: str | None = None) -> pd.DataFra
     return frame
 
 def filter_scope(frame: pd.DataFrame) -> pd.DataFrame: 
-    commodity = frame["COMMODITY_RELEASED TYPE"]
+    commodity = frame["COMMODITY_RELEASED_TYPE"]
 
-    in_scope = frame["is_final"].astype(bool) & commodity.isin(KEPT_COMMODITIES) | commodity.isna()
+    in_scope = frame["is_final"].astype(bool) & (commodity.isin(KEPT_COMMODITIES) | commodity.isna())
 
     return frame.loc[in_scope].reset_index(drop=True)
+
+def add_derived_columns(frame: pd.DataFrame) -> pd.DataFrame: 
+    timestamp = frame[TIME_COLUMN]
+
+    return frame.assign(
+        incident_month=timestamp.dt.month,
+        incident_weekday=timestamp.dt.dayofweek,
+        incident_hour=timestamp.dt.hour,
+        **{COST_TARGET: np.log1p(frame[COST_SOURCE])},
+    )
+
+class PHMSAIncidentAdapter: 
+
+    TASK_TARGETS = {
+        "classification": (TaskKind.CLASSIFICATION, CAUSE_TARGET), 
+        "regression": (TaskKind.REGRESSION, COST_TARGET)
+    }
+
+    def load(self, config: ProjectConfig) -> ProjectDataset: 
+
+        relative_path = str(config.dataset.get("path", "")).strip()
+
+        if not relative_path:
+            raise ValueError("dataset.path is required for the PHMSA adapter")
+        expected_sha256 = str(config.dataset.get("sha256", "")).strip() or None
+
+        frame = read_incidents(config.root / relative_path, expected_sha256)
+        observations = add_derived_columns(filter_scope(frame))
+
+        tasks: dict[str, TaskDefinition] = {}
+        for key, (kind, target) in self.TASK_TARGETS.items():
+            if key not in config.tasks:
+                continue
+            declaration = config.tasks[key]
+            declared_target = declaration.get("target")
+            if declared_target is not None and declared_target != target:
+                raise ValueError(
+                    f"tasks.{key}.target is {declared_target!r}; "
+                    f"the PHMSA adapter defines it as {target!r}"
+                )
+            tasks[key] = TaskDefinition(
+                name=str(declaration["name"]),
+                kind=kind,
+                feature_columns=FEATURES,
+                target_column=target,
+                metric=str(declaration["metric"]),
+            )
+        if not tasks:
+            raise ValueError("Declare [tasks.classification] or [tasks.regression]")
+
+        dataset = ProjectDataset(
+            observations=observations,
+            identifier=str(config.dataset["identifier"]),
+            tasks=tasks,
+            provenance=DatasetProvenance(
+                name=str(config.dataset["name"]),
+                source=str(config.dataset.get("source", "undocumented")),
+                license=str(config.dataset.get("license", "undocumented")),
+                observation_unit=str(config.dataset["observation_unit"]),
+            ),
+        )
+        dataset.validate()
+        return dataset
