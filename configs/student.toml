@@ -1,0 +1,30 @@
+[project]
+name = "PHMSA Incident Triage"
+intended_user = "State pipeline-safety analyst"
+
+[dataset]
+adapter = "phmsa"
+name = "PHMSA gas distribution incident reports, 2010 - present"
+source = "REPLACE WITH SOURCE AND RETRIEVAL DATE"
+license = "U.S. federal government public data"
+path = "data/processed/gas_distribution_incidents.parquet"
+observation_unit = "One final gas distribution incident report"
+identifier = "REPORT_NUMBER"
+
+[tasks.regression]
+name = "Log-cost regression"
+target = "log_cost"
+metric = "root_mean_squared_error"
+
+[tasks.classification]
+name = "Cause classification"
+target = "CAUSE"
+metric = "balanced_accuracy"
+
+[split]
+random_state = 438
+test_fraction = 0.25
+# group_column = "subject_id"
+time_column = "LOCAL_DATETIME"
+validation_start = "2020-01-01"
+test_start = "2022-01-01"
