@@ -1,0 +1,36 @@
+step,column,n_values,rule
+4 placeholders,WATER_DEPTH,4,placeholder token -> NaN
+4 placeholders,INSTALLATION_YEAR,280,placeholder token -> NaN
+4 placeholders,MANUFACTURED_YEAR,334,placeholder token -> NaN
+4 placeholders,WT_STEEL,366,placeholder token -> NaN
+4 placeholders,MATERIAL_PE_PIPE_CODE,79,placeholder token -> NaN
+4 placeholders,ESTIMATED_SPEED,39,placeholder token -> NaN
+6 types,LOCATION_POSTAL_CODE,1,not a 5-digit ZIP or ZIP+4 -> NaN
+7 impossible,PIPE_DIAMETER,0,diameter <= 0
+7 impossible,INSTALLATION_YEAR,0,installed after the incident year
+7 impossible,LOCATION_LATITUDE,0,"latitude outside [-90, 90]"
+7 impossible,LOCATION_LONGITUDE,0,"longitude outside [-180, 180]"
+7 impossible,NUM_EMP_FATALITIES,0,negative cost or count
+7 impossible,NUM_CONTR_FATALITIES,0,negative cost or count
+7 impossible,NUM_ER_FATALITIES,0,negative cost or count
+7 impossible,NUM_WORKER_FATALITIES,0,negative cost or count
+7 impossible,NUM_GP_FATALITIES,0,negative cost or count
+7 impossible,FATAL,0,negative cost or count
+7 impossible,NUM_EMP_INJURIES,0,negative cost or count
+7 impossible,NUM_CONTR_INJURIES,0,negative cost or count
+7 impossible,NUM_ER_INJURIES,0,negative cost or count
+7 impossible,NUM_WORKER_INJURIES,0,negative cost or count
+7 impossible,NUM_GP_INJURIES,0,negative cost or count
+7 impossible,INJURE,0,negative cost or count
+7 impossible,NUM_PUB_EVACUATED,0,negative cost or count
+7 impossible,EST_COST_OPER_PAID,0,negative cost or count
+7 impossible,EST_COST_PROP_DAMAGE,0,negative cost or count
+7 impossible,EST_COST_EMERGENCY,0,negative cost or count
+7 impossible,EST_COST_OTHER,0,negative cost or count
+7 impossible,EST_COST_UNINTENTIONAL_RELEASE,0,negative cost or count
+7 impossible,EST_COST_INTENTIONAL_RELEASE,0,negative cost or count
+7 impossible,PRPTY,0,negative cost or count
+7 impossible,NUM_EMPLOYEES_TESTED,0,negative cost or count
+7 impossible,NUM_EMPLOYEES_FAILED,0,negative cost or count
+7 impossible,NUM_CONTRACTORS_TESTED,0,negative cost or count
+7 impossible,NUM_CONTRACTORS_FAILED,0,negative cost or count
